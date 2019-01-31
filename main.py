@@ -6,13 +6,15 @@ import curses
 
 
 class Config:
+    source = "/sys/class/thermal/thermal_zone0/temp"
+
     prefix = "CPU Temperature: "
     color = False
 
 
 def get_cpu_temp():
-    with open("/sys/class/thermal/thermal_zone0/temp", "r") as f:
-        return int(f.read().strip()) / 1000.0
+    with open(Config.source, "r") as f:
+        return int(f.read()) / 1000.0
 
 
 def print_cpu_temp():
