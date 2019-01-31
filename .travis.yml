@@ -1,0 +1,20 @@
+sudo: false
+language: python
+python: 3.7
+dist: xenial
+
+install:
+  - pip3 install --upgradeflake8 pytest
+
+script:
+  - flake8
+  - python3 -m pytest test
+
+cache:
+  directories:
+    - $HOME/virtualenv/python3.7.*
+    - $HOME/.cache/pip
+
+before_cache:
+  - rm -rf $HOME/.cache/pip/http
+  - rm -rf $HOME/.cache/pip/log
