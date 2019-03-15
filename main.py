@@ -55,7 +55,7 @@ def format_cpu_temp():
             color = "36;1"
         else:
             color = "32;1"
-        return "\x1B[K{}\x1B[{}m{}'C".format(Config.temp_prefix, color, temp)
+        return "\x1B[K{}\x1B[{}m{}'C\x1B[0m".format(Config.temp_prefix, color, temp)
     else:
         return "\x1B[K{}{}'C".format(Config.temp_prefix, temp)
 
@@ -75,7 +75,7 @@ def format_cpu_freq():
             color = "36;1"
         else:
             color = "32;1"
-        return "\x1B[K{}\x1B[{}m{}".format(Config.freq_prefix, color, freq_s)
+        return "\x1B[K{}\x1B[{}m{}\x1B[0m".format(Config.freq_prefix, color, freq_s)
     else:
         return "\x1B[K{}{}".format(Config.freq_prefix, freq_s)
 
@@ -91,25 +91,25 @@ def format_cpu_usage():
             color = "36;1"
         else:
             color = "32;1"
-        return "\x1B[K{}\x1B[{}m{:.1f}%".format(Config.usage_prefix, color, usage)
+        return "\x1B[K{}\x1B[{}m{:.1f}%\x1B[0m".format(Config.usage_prefix, color, usage)
     else:
         return "\x1B[K{}{:.1f}%".format(Config.usage_prefix, usage)
 
 
 def print_cpu_temp():
-    print("\r" + format_cpu_temp(), end="\x1B[0m")
+    print("\r", end=format_cpu_temp())
 
 
 def print_cpu_freq():
-    print("\r" + format_cpu_freq(), end="\x1B[0m")
+    print("\r", end=format_cpu_freq())
 
 
 def print_cpu_usage():
-    print("\r" + format_cpu_usage(), end="\x1B[0m")
+    print("\r", end=format_cpu_usage())
 
 
 def print_all():
-    print("\x1B[2F" + format_cpu_temp() + "\x1B[0m\n" + format_cpu_freq() + "\x1B[0m\n" + format_cpu_usage(), end="\x1B[0m")
+    print("\x1B[2F" + format_cpu_temp() + "\n" + format_cpu_freq() + "\n" + format_cpu_usage(), end="")
 
 
 def main_loop():
