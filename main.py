@@ -11,7 +11,9 @@ class Config:
 
     temp_prefix = "CPU Temperature: "
     freq_prefix = "CPU Frequency: "
+    usage_prefix = "CPU Utilization: "
     color = False
+    last_usage = None
 
 
 def get_cpu_temp():
@@ -22,6 +24,24 @@ def get_cpu_temp():
 def get_cpu_freq():
     with open(Config.freq_source, "r") as f:
         return int(f.read()) / 1000.0  # This converts KHz to MHz
+
+
+def get_cpu_usage():
+    with open("/proc/stat", "r") as f:
+        for line in f:
+            if line.startswith("cpu "):
+                items = line.split()
+                a, b, c = int(items[1]), int(items[3]), int(items[4])
+                if Config.last_usage is None:
+                    Config.last_usage = a, b, c
+                    return 1  # Placeholder
+                else:
+                    la, lb, lc = Config.last_usage
+                    Config.last_usage = a, b, c
+                    a -= la
+                    b -= lb
+                    c -= lc
+                    return (a + b) / (a + b + c)
 
 
 def format_cpu_temp():
@@ -60,6 +80,22 @@ def format_cpu_freq():
         return "\x1B[K{}{}".format(Config.freq_prefix, freq_s)
 
 
+def format_cpu_usage():
+    usage = get_cpu_usage() * 100
+    if Config.color:
+        if usage >= 90:
+            color = "31;1"
+        elif usage >= 75:
+            color = "33;1"
+        elif usage >= 50:
+            color = "36;1"
+        else:
+            color = "32;1"
+        return "\x1B[K{}\x1B[{}m{:.1f}%".format(Config.usage_prefix, color, usage)
+    else:
+        return "\x1B[K{}{:.1f}%".format(Config.usage_prefix, usage)
+
+
 def print_cpu_temp():
     print("\r" + format_cpu_temp(), end="\x1B[0m")
 
@@ -68,11 +104,16 @@ def print_cpu_freq():
     print("\r" + format_cpu_freq(), end="\x1B[0m")
 
 
+def print_cpu_usage():
+    print("\r" + format_cpu_usage(), end="\x1B[0m")
+
+
 def print_all():
-    print("\x1B[F" + format_cpu_temp() + "\x1B[0m\n" + format_cpu_freq(), end="\x1B[0m")
+    print("\x1B[2F" + format_cpu_temp() + "\x1B[0m\n" + format_cpu_freq() + "\x1B[0m\n" + format_cpu_usage(), end="\x1B[0m")
 
 
 def main_loop():
+    print(end="\n\n")
     while True:
         print_all()
         time.sleep(1)
